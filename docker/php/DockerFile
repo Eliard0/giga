@@ -15,16 +15,22 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
     libexif-dev \
-    libonig-dev 
+    libonig-dev \
+    # Adicionado: Dependência para a extensão intl
+    libicu-dev 
 
 WORKDIR /var/www
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install pdo pdo_pgsql mbstring zip exif pcntl
+# Adicionado 'intl' à lista de extensões
+RUN docker-php-ext-install pdo pdo_pgsql mbstring zip exif pcntl intl
 RUN docker-php-ext-install gd
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN mkdir -p /root/.composer && chown -R www-data:www-data /root/.composer
+RUN chown -R www-data:www-data /var/www/vendor /var/www/composer.lock /var/www/composer.json
 
 RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www
